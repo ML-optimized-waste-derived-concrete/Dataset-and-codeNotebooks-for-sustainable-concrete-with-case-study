@@ -1,99 +1,96 @@
-An Integrated Data-Driven Framework for Sustainable Multi-Waste Concrete Design and Multi-Objective Optimization of Offshore Wind Turbine Towers: A Comparative Evaluation of Ensemble, Deep, and Operator Learning Approaches
+# An Integrated Data-Driven Framework for Sustainable Multi-Waste Concrete Design and Multi-Objective Optimization of Offshore Wind Turbine Towers: A Comparative Evaluation of Ensemble, Deep, and Operator Learning Approaches
 
-Author Information
+## Author Information
 
-1. Anjum Parveen
+1. **Anjum Parveen**
 Department of Process, Energy and Environmental Technology, Faculty of Technology, Natural Sciences and Maritime Sciences, University of South-Eastern Norway, Norway
 Email: anjumsara0499@gmail.com
 ORCID: https://orcid.org/0009-0008-0974-976X
 
-2. Hadi Amlashi (Corresponding Author)
+2. **Hadi Amlashi** (Corresponding Author)
 Department of Process, Energy and Environmental Technology, Faculty of Technology, Natural Sciences and Maritime Sciences, University of South-Eastern Norway, Norway
 Email: hadi.amlashi@usn.no
 ORCID: https://orcid.org/0000-0002-5537-6983
 
-OVERVIEW
+## Overview
+
 This repository contains the dataset and code from a project that:
-1. Built machine-learning surrogate models to predict mechanical, durability, cost, and CO2 outcomes of waste-derived concrete mixes.
+1. Built machine-learning surrogate models to predict mechanical, durability, cost, and CO₂ outcomes of waste-derived concrete mixes.
 2. Used those surrogates in a multi-objective optimization to identify a sustainable, low-carbon, low-cost mix.
 3. Applied that optimized mix to a preliminary structural case study of a wind turbine tower.
 
 This work is the foundation for a follow-on project (time-dependent reliability-based design optimization of waste-derived concrete for floating offshore wind turbine support structures) and is shared here for reuse, review, and reproducibility.
 
-REPOSITORY CONTENTS
+## Repository contents
 
-- MASTER_waste_concrete_dataset_v5_FINAL_1.csv   : Mix design + property dataset (8,397 rows)
-- build_master_dataset_v5_FINAL_1.py             : Script that assembles the master dataset
-- Model_training_code.ipynb                      : Surrogate model training, evaluation, PSO optimization
-- Casestudy_code.ipynb                           : Structural case study (wind turbine tower checks)
-- README.txt                                     : This file
+```
+├── MASTER_waste_concrete_dataset_v5_FINAL_1.csv   # Mix design + property dataset (8,397 rows)
+├── build_master_dataset_v5_FINAL_1.py             # Script that assembles the master dataset
+├── Model_training_code.ipynb                      # Surrogate model training, evaluation, PSO optimization
+├── Casestudy_code.ipynb                           # Structural case study (wind turbine tower checks)
+└── README.md
+```
 
-DATASET: MASTER_waste_concrete_dataset_v5_FINAL_1.csv
+## Dataset: `MASTER_waste_concrete_dataset_v5_FINAL_1.csv`
 
 8,397 rows, 19 columns. Each row is a concrete mix design with one or more waste streams replacing conventional aggregate/cement, along with measured or derived mechanical, durability, cost, and emissions properties.
 
-Column                         Description
-----------------------------------------------------------------
-sample_id                      Row identifier
-waste_type                     Waste stream category (RAC, RCWTB, Ceramic, Plastic, Combined, or freeze-thaw variants)
-data_source                    "real" (from literature) or "augmented_literature_based" (synthetically generated - see DATA PROVENANCE below)
-paper_ref_no                   Source literature reference for "real" rows
-cement_kg_m3                   Cement content
-water_cement_ratio             Water/cement ratio
-curing_days                    Curing age at test
-rac_%, rcwtb_%, ceramic_%, plastic_%   Replacement level per waste stream
-total_replacement_%            Sum of all replacement percentages
-compressive_strength_mpa       Compressive strength
-flexural_strength_mpa          Flexural strength
-split_tensile_strength_mpa     Split tensile strength
-chloride_penetration_mm        Chloride penetration depth
-marine_durability_score        Composite durability score
-co2_emission_kg_m3             Embodied CO2 emissions
-cost_usd_m3                    Material cost
+| Column | Description |
+|---|---|
+| `sample_id` | Row identifier |
+| `waste_type` | Waste stream category (RAC, RCWTB, Ceramic, Plastic, Combined, or freeze-thaw variants) |
+| `data_source` | `real` (from literature) or `augmented_literature_based` (synthetically generated — see **Data provenance** below) |
+| `paper_ref_no` | Source literature reference for `real` rows |
+| `cement_kg_m3` | Cement content |
+| `water_cement_ratio` | Water/cement ratio |
+| `curing_days` | Curing age at test |
+| `rac_%`, `rcwtb_%`, `ceramic_%`, `plastic_%` | Replacement level per waste stream |
+| `total_replacement_%` | Sum of all replacement percentages |
+| `compressive_strength_mpa` | Compressive strength |
+| `flexural_strength_mpa` | Flexural strength |
+| `split_tensile_strength_mpa` | Split tensile strength |
+| `chloride_penetration_mm` | Chloride penetration depth |
+| `marine_durability_score` | Composite durability score |
+| `co2_emission_kg_m3` | Embodied CO₂ emissions |
+| `cost_usd_m3` | Material cost |
 
-DATA PROVENANCE - READ BEFORE REUSE
+### ⚠️ Data provenance — read before reuse
 
 Not all columns carry the same evidentiary weight, and this matters for any reliability, uncertainty, or durability analysis built on top of this dataset:
 
-- compressive_strength_mpa is genuinely literature-sourced for rows where data_source = real.
+- **`compressive_strength_mpa`** is genuinely literature-sourced for rows where `data_source = real`.
+- **`flexural_strength_mpa`** and **`split_tensile_strength_mpa`** are derived from compressive strength via formula wherever the original source value was unavailable (check `build_master_dataset_v5_FINAL_1.py` for the exact relations used).
+- **`co2_emission_kg_m3`** and **`cost_usd_m3`** use real literature/database values where available (`> 0`), and a formula-based estimate otherwise.
+- **`chloride_penetration_mm`** and **`marine_durability_score`** are generated by a fixed formula (with injected random noise) applied to the *entire* dataset, including rows labeled `real`. **No row in this dataset contains a literature-measured chloride penetration or durability value.** These two columns should not be used as empirical/data-driven inputs for uncertainty quantification, degradation modeling, or reliability analysis without first replacing them with real measured data.
+- **Waste-stream sample sizes are uneven.** RAC has substantial real support (~7,100 rows across 4 papers). RCWTB, Ceramic, Plastic, and Combined have far fewer real rows (single digits to several dozen) and are predominantly padded with `augmented_literature_based` synthetic rows generated from a deterministic formula plus fixed-variance noise — see the augmentation logic in `build_master_dataset_v5_FINAL_1.py`.
 
-- flexural_strength_mpa and split_tensile_strength_mpa are derived from compressive strength via formula wherever the original source value was unavailable (check build_master_dataset_v5_FINAL_1.py for the exact relations used).
+Any user extending this dataset for probabilistic or reliability-based work should filter to `data_source == "real"` and independently source chloride/durability data before treating those fields as empirical.
 
-- co2_emission_kg_m3 and cost_usd_m3 use real literature/database values where available (> 0), and a formula-based estimate otherwise.
+### `build_master_dataset_v5_FINAL_1.py`
 
-- chloride_penetration_mm and marine_durability_score are generated by a fixed formula (with injected random noise) applied to the ENTIRE dataset, including rows labeled "real." No row in this dataset contains a literature-measured chloride penetration or durability value. These two columns should not be used as empirical/data-driven inputs for uncertainty quantification, degradation modeling, or reliability analysis without first replacing them with real measured data.
+Assembles the master CSV from individual literature-derived source files, applies filtering (e.g., excludes implausible compressive strength values), generates synthetic rows for underrepresented waste streams (`augmented_literature_based`), and computes derived columns. Read this script directly to see exactly which columns are real vs. formula-derived for any given row.
 
-- Waste-stream sample sizes are uneven. RAC has substantial real support (~7,100 rows across 4 papers). RCWTB, Ceramic, Plastic, and Combined have far fewer real rows (single digits to several dozen) and are predominantly padded with augmented_literature_based synthetic rows generated from a deterministic formula plus fixed-variance noise - see the augmentation logic in build_master_dataset_v5_FINAL_1.py.
+## Code notebooks
 
-Any user extending this dataset for probabilistic or reliability-based work should filter to data_source == "real" and independently source chloride/durability data before treating those fields as empirical.
-
-build_master_dataset_v5_FINAL_1.py
-
-Assembles the master CSV from individual literature-derived source files, applies filtering (e.g., excludes implausible compressive strength values), generates synthetic rows for underrepresented waste streams (augmented_literature_based), and computes derived columns. Read this script directly to see exactly which columns are real vs. formula-derived for any given row.
-
-CODE NOTEBOOKS
-
-Model_training_code.ipynb
-
+### `Model_training_code.ipynb`
 End-to-end ML pipeline on the master dataset:
 - Group-aware train/validation/test split (grouped to avoid leakage across correlated rows)
 - Dataset sensitivity analysis
 - Three competing surrogate models: XGBoost, multi-output MLP, and DeepONet
 - Model evaluation and comparison, ablation study
 - SHAP-based feature sensitivity analysis
-- Particle Swarm Optimization (PSO) to find the mix minimizing cost/CO2 and maximizing strength/durability
+- Particle Swarm Optimization (PSO) to find the mix minimizing cost/CO₂ and maximizing strength/durability
 - PSO equifinality / multi-run robustness analysis
 - Final reported mix summary (chart + CSV)
 
-Inputs (FEATURES): cement_kg_m3, water_cement_ratio, curing_days, rac_%, rcwtb_%, ceramic_%, plastic_%, total_replacement_%
+**Inputs (`FEATURES`):** `cement_kg_m3`, `water_cement_ratio`, `curing_days`, `rac_%`, `rcwtb_%`, `ceramic_%`, `plastic_%`, `total_replacement_%`
 
-Outputs (TARGETS): compressive_strength_mpa, flexural_strength_mpa, split_tensile_strength_mpa, chloride_penetration_mm, marine_durability_score, co2_emission_kg_m3, cost_usd_m3
+**Outputs (`TARGETS`):** `compressive_strength_mpa`, `flexural_strength_mpa`, `split_tensile_strength_mpa`, `chloride_penetration_mm`, `marine_durability_score`, `co2_emission_kg_m3`, `cost_usd_m3`
 
-A second cell in this notebook runs post-hoc validation checks: dataset basic stats, feature-level data leakage check, train-vs-test R2 (overfitting check), residual distribution analysis.
+A second cell in this notebook runs post-hoc validation checks: dataset basic stats, feature-level data leakage check, train-vs-test R² (overfitting check), residual distribution analysis.
 
-Casestudy_code.ipynb
-
-Applies the PSO-optimized mix from Model_training_code.ipynb to a preliminary structural case study:
+### `Casestudy_code.ipynb`
+Applies the PSO-optimized mix from `Model_training_code.ipynb` to a preliminary structural case study:
 - Turbine and tower setup (based on the DTU 10 MW Reference Turbine)
 - Load calculations
 - Structural checks per DNV-OS-J101
@@ -101,33 +98,27 @@ Applies the PSO-optimized mix from Model_training_code.ipynb to a preliminary st
 - Comparison table and sensitivity analysis
 - Result charts and summary export
 
-This case study evaluates a single-point-in-time (as-built), deterministic design check - it does not include time-dependent degradation or a formal reliability index, which is the scope of the follow-on project.
+This case study evaluates a single-point-in-time (as-built), deterministic design check — it does not include time-dependent degradation or a formal reliability index, which is the scope of the follow-on project.
 
-HOW TO USE THIS REPOSITORY
+## How to use this repository
 
+1. Clone the repository and open the notebooks in Jupyter/Colab (both notebooks currently reference a `/content/...` path — update `DATASET_PATH`/`OUTPUT_DIR` at the top of each notebook to your local paths).
+2. Run `Model_training_code.ipynb` first to train the surrogate models and generate the optimized mix design.
+3. Run `Casestudy_code.ipynb` second — it expects the Phase 2 outputs (`00_data_split_assignment.csv` and related result files) to already exist.
+4. Read the **Data provenance** section above before using `chloride_penetration_mm` or `marine_durability_score` for anything beyond the original CO₂/cost/strength optimization this project performed.
 
-1. Clone the repository and open the notebooks in Jupyter/Colab (both notebooks currently reference a /content/... path - update DATASET_PATH/OUTPUT_DIR at the top of each notebook to your local paths).
-2. Run Model_training_code.ipynb first to train the surrogate models and generate the optimized mix design.
-3. Run Casestudy_code.ipynb second - it expects the Phase 2 outputs (00_data_split_assignment.csv and related result files) to already exist.
-4. Read the DATA PROVENANCE section above before using chloride_penetration_mm or marine_durability_score for anything beyond the original CO2/cost/strength optimization this project performed.
-
-
-DEPENDENCIES
-
+## Dependencies
 
 - Python 3.x
-- pandas, numpy, scipy
-- scikit-learn
-- xgboost
-- matplotlib
+- `pandas`, `numpy`, `scipy`
+- `scikit-learn`
+- `xgboost`
+- `matplotlib`
 - SHAP library
 - Deep learning framework used for the MLP/DeepONet models (check notebook imports)
 
-
-CITATION / CONTACT
-
+## Citation / contact
 
 Please cite this repository using the author information listed at the top of this file.
 
 Maintained by Anjum Parveen and Hadi Amlashi, Department of Process, Energy and Environmental Technology, University of South-Eastern Norway.
-
