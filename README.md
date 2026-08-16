@@ -12,10 +12,7 @@ Department of Process, Energy and Environmental Technology, Faculty of Technolog
 Email: hadi.amlashi@usn.no
 ORCID: https://orcid.org/0000-0002-5537-6983
 
-================================================================
 OVERVIEW
-================================================================
-
 This repository contains the dataset and code from a project that:
 1. Built machine-learning surrogate models to predict mechanical, durability, cost, and CO2 outcomes of waste-derived concrete mixes.
 2. Used those surrogates in a multi-objective optimization to identify a sustainable, low-carbon, low-cost mix.
@@ -23,9 +20,7 @@ This repository contains the dataset and code from a project that:
 
 This work is the foundation for a follow-on project (time-dependent reliability-based design optimization of waste-derived concrete for floating offshore wind turbine support structures) and is shared here for reuse, review, and reproducibility.
 
-================================================================
 REPOSITORY CONTENTS
-================================================================
 
 - MASTER_waste_concrete_dataset_v5_FINAL_1.csv   : Mix design + property dataset (8,397 rows)
 - build_master_dataset_v5_FINAL_1.py             : Script that assembles the master dataset
@@ -33,9 +28,7 @@ REPOSITORY CONTENTS
 - Casestudy_code.ipynb                           : Structural case study (wind turbine tower checks)
 - README.txt                                     : This file
 
-================================================================
 DATASET: MASTER_waste_concrete_dataset_v5_FINAL_1.csv
-================================================================
 
 8,397 rows, 19 columns. Each row is a concrete mix design with one or more waste streams replacing conventional aggregate/cement, along with measured or derived mechanical, durability, cost, and emissions properties.
 
@@ -58,9 +51,7 @@ marine_durability_score        Composite durability score
 co2_emission_kg_m3             Embodied CO2 emissions
 cost_usd_m3                    Material cost
 
-----------------------------------------------------------------
 DATA PROVENANCE - READ BEFORE REUSE
-----------------------------------------------------------------
 
 Not all columns carry the same evidentiary weight, and this matters for any reliability, uncertainty, or durability analysis built on top of this dataset:
 
@@ -76,19 +67,14 @@ Not all columns carry the same evidentiary weight, and this matters for any reli
 
 Any user extending this dataset for probabilistic or reliability-based work should filter to data_source == "real" and independently source chloride/durability data before treating those fields as empirical.
 
-----------------------------------------------------------------
 build_master_dataset_v5_FINAL_1.py
-----------------------------------------------------------------
 
 Assembles the master CSV from individual literature-derived source files, applies filtering (e.g., excludes implausible compressive strength values), generates synthetic rows for underrepresented waste streams (augmented_literature_based), and computes derived columns. Read this script directly to see exactly which columns are real vs. formula-derived for any given row.
 
-================================================================
 CODE NOTEBOOKS
-================================================================
 
-----------------------------------------------------------------
 Model_training_code.ipynb
-----------------------------------------------------------------
+
 End-to-end ML pipeline on the master dataset:
 - Group-aware train/validation/test split (grouped to avoid leakage across correlated rows)
 - Dataset sensitivity analysis
@@ -105,9 +91,8 @@ Outputs (TARGETS): compressive_strength_mpa, flexural_strength_mpa, split_tensil
 
 A second cell in this notebook runs post-hoc validation checks: dataset basic stats, feature-level data leakage check, train-vs-test R2 (overfitting check), residual distribution analysis.
 
-----------------------------------------------------------------
 Casestudy_code.ipynb
-----------------------------------------------------------------
+
 Applies the PSO-optimized mix from Model_training_code.ipynb to a preliminary structural case study:
 - Turbine and tower setup (based on the DTU 10 MW Reference Turbine)
 - Load calculations
@@ -118,18 +103,17 @@ Applies the PSO-optimized mix from Model_training_code.ipynb to a preliminary st
 
 This case study evaluates a single-point-in-time (as-built), deterministic design check - it does not include time-dependent degradation or a formal reliability index, which is the scope of the follow-on project.
 
-================================================================
 HOW TO USE THIS REPOSITORY
-================================================================
+
 
 1. Clone the repository and open the notebooks in Jupyter/Colab (both notebooks currently reference a /content/... path - update DATASET_PATH/OUTPUT_DIR at the top of each notebook to your local paths).
 2. Run Model_training_code.ipynb first to train the surrogate models and generate the optimized mix design.
 3. Run Casestudy_code.ipynb second - it expects the Phase 2 outputs (00_data_split_assignment.csv and related result files) to already exist.
 4. Read the DATA PROVENANCE section above before using chloride_penetration_mm or marine_durability_score for anything beyond the original CO2/cost/strength optimization this project performed.
 
-================================================================
+
 DEPENDENCIES
-================================================================
+
 
 - Python 3.x
 - pandas, numpy, scipy
@@ -139,9 +123,9 @@ DEPENDENCIES
 - SHAP library
 - Deep learning framework used for the MLP/DeepONet models (check notebook imports)
 
-================================================================
+
 CITATION / CONTACT
-================================================================
+
 
 Please cite this repository using the author information listed at the top of this file.
 
